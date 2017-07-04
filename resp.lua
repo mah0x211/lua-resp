@@ -207,7 +207,7 @@ local function arrays( r )
     -- parse values
     r.handler = nil;
 
-    return r:parse();
+    return r:decode();
 end
 
 
@@ -225,11 +225,11 @@ local HANDLERS_LUT = {
 local RESP = {};
 
 
---- parse
+--- decode
 -- @param msg
 -- @return rc
 -- @return val
-function RESP:parse( msg )
+function RESP:decode( msg )
     local handler = self.handler;
     local rc, val, extra;
 
@@ -294,7 +294,7 @@ function RESP:parse( msg )
         self.arr[self.idx] = val;
     end
 
-    return self:parse();
+    return self:decode();
 end
 
 
