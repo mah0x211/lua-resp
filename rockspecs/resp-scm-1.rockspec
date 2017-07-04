@@ -15,7 +15,7 @@ dependencies = {
 build = {
     type = "builtin",
     modules = {
-        resep = "resp.lua"
+        resp = "resp.lua"
     }
 }
 
