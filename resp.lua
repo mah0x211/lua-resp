@@ -26,6 +26,12 @@
 
 --]]
 
+--- assign to local
+local select = select;
+local setmetatable = setmetatable;
+local tostring = tostring;
+local tonumber = tonumber;
+local concat = table.concat;
 --- status constants
 local OK = 0;
 local EAGAIN = 35;
@@ -295,6 +301,56 @@ function RESP:decode( msg )
     end
 
     return self:decode();
+end
+
+
+--- encode
+-- @param narg
+-- @param argv
+-- @return msg
+local function encode( narg, argv )
+    local arr = {
+        -- array length
+        '*' .. narg
+    };
+    local idx = 2;
+
+    -- encode command
+    for i = 1, narg do
+        local v = argv[i];
+        local t = type( v );
+
+        if t == 'string' then
+            arr[idx] = '$' .. #v;
+            arr[idx + 1] = v;
+            idx = idx + 2;
+        elseif t == 'number' then
+            v = tostring( v );
+            arr[idx] = '$' .. #v;
+            arr[idx + 1] = v;
+            idx = idx + 2;
+        elseif t == 'boolean' then
+            v = v and '1' or '0';
+            arr[idx] = '$1';
+            arr[idx + 1] = v;
+            idx = idx + 2;
+        elseif t == 'table' then
+            arr[idx] = encode( #v, v );
+            idx = idx + 1;
+        else
+            error( 'invalid argument#' .. i .. ' ' .. t );
+        end
+    end
+
+    return concat( arr, '\r\n' );
+end
+
+
+--- encode
+-- @param ...
+-- @return msg
+function RESP:encode( ... )
+    return encode( select( '#', ... ), { ... } ) .. '\r\n';
 end
 
 
