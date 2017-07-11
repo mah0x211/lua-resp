@@ -304,11 +304,11 @@ function RESP:decode( msg )
 end
 
 
---- encode
+--- encode_ex
 -- @param narg
 -- @param argv
 -- @return msg
-local function encode( narg, argv )
+local function encode2array( narg, argv )
     local arr = {
         -- array length
         '*' .. narg
@@ -350,7 +350,7 @@ end
 -- @param ...
 -- @return msg
 function RESP:encode( ... )
-    return encode( select( '#', ... ), { ... } ) .. '\r\n';
+    return encode2array( select( '#', ... ), { ... } ) .. '\r\n';
 end
 
 
