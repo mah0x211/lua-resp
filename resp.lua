@@ -304,7 +304,7 @@ function RESP:decode( msg )
 end
 
 
---- encode_ex
+--- encode2array
 -- @param narg
 -- @param argv
 -- @return msg
@@ -335,7 +335,7 @@ local function encode2array( narg, argv )
             arr[idx + 1] = v;
             idx = idx + 2;
         elseif t == 'table' then
-            arr[idx] = encode( #v, v );
+            arr[idx] = encode2array( #v, v );
             idx = idx + 1;
         else
             error( 'invalid argument#' .. i .. ' ' .. t );
