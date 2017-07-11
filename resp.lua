@@ -235,6 +235,7 @@ local RESP = {};
 -- @param msg
 -- @return rc
 -- @return val
+-- @return extra
 function RESP:decode( msg )
     local handler = self.handler;
     local rc, val, extra;
@@ -246,6 +247,11 @@ function RESP:decode( msg )
 
     -- select handler
     if not handler then
+        -- ignore empty-message
+        if #self.msg == 0 then
+            return EAGAIN;
+        end
+
         handler = HANDLERS_LUT[self.msg:sub( 1, 1 )];
         if not handler then
             self.msg = '';
