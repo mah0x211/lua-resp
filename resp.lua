@@ -349,8 +349,16 @@ end
 --- encode
 -- @param ...
 -- @return msg
-function RESP:encode( ... )
+local function encode( ... )
     return encode2array( select( '#', ... ), { ... } ) .. '\r\n';
+end
+
+
+--- encode
+-- @param ...
+-- @return msg
+function RESP:encode( ... )
+    return encode( ... );
 end
 
 
@@ -370,6 +378,7 @@ end
 
 return {
     new = new,
+    encode = encode,
     OK = OK,
     EAGAIN = EAGAIN,
     EILSEQ = EILSEQ
