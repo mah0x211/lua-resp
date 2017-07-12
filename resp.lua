@@ -343,6 +343,9 @@ local function encode2array( narg, argv )
         elseif t == 'table' then
             arr[idx] = encode2array( #v, v );
             idx = idx + 1;
+        elseif v == nil then
+            arr[idx] = '$-1';
+            idx = idx + 1;
         else
             error( 'invalid argument#' .. i .. ' ' .. t );
         end
