@@ -34,9 +34,14 @@ local setmetatable = setmetatable;
 local tostring = tostring;
 local tonumber = tonumber;
 local concat = table.concat;
+local strfind = string.find;
+local strsub = string.sub;
+local strbyte = string.byte;
 --- constants
 local INF_P = math.huge;
 local INF_N = -INF_P;
+local CR = strbyte('\r');
+local LF = strbyte('\n');
 --- status constants
 local OK = 0;
 local EAGAIN = 35;
@@ -57,20 +62,20 @@ end
 -- @return pos
 local function getpos( r )
     local msg = r.msg;
-    local pos = msg:find( '[\r\n]+', r.cur );
+    local pos = strfind( msg, '[\r\n]+', r.cur );
 
     -- not found
     if not pos then
         r.cur = #msg;
     -- found illegal byte sequence
-    elseif msg:sub( pos, pos ) ~= '\r' then
+    elseif strbyte( msg, pos ) ~= CR then
         r.cur = pos;
         return EILSEQ;
     -- reached to eol
     elseif pos == #msg then
         r.cur = pos - 1;
     -- found LF
-    elseif msg:sub( pos + 1, pos + 1 ) == '\n' then
+    elseif strbyte( msg, pos + 1 ) == LF then
         r.cur = pos + 2;
         return OK, pos - 1;
     -- found illegal byte sequence
@@ -94,8 +99,8 @@ local function getline( r )
     if rc == OK then
         local msg = r.msg;
 
-        line = msg:sub( 1, pos );
-        r.msg = msg:sub( r.cur );
+        line = strsub( msg, 1, pos );
+        r.msg = strsub( msg, r.cur );
         r.cur = 1;
     end
 
@@ -121,11 +126,11 @@ local function errors( r )
     local rc, err = getline( r );
 
     if rc == OK then
-        local head, tail = err:find('[%s]+');
+        local head, tail = strfind( err, '[%s]+' );
 
         -- found deliminters
         if head then
-            return OK, err:sub( 1, head - 1 ), err:sub( tail + 1 );
+            return OK, strsub( err, 1, head - 1 ), strsub( err, tail + 1 );
         end
 
         return OK, err;
@@ -143,7 +148,7 @@ local function integers( r )
     local rc, val = getline( r );
 
     if rc == OK then
-        val = val:find('^-*[0-9]+$') and tonumber( val );
+        val = strfind( val, '^-*[0-9]+$' ) and tonumber( val );
         return val and OK or EILSEQ, val;
     end
 
@@ -175,15 +180,16 @@ local function bulkstrings( r )
     if ( #r.msg - r.nbyte ) < 2 then
         return EAGAIN;
     -- found line-terminator
-    elseif r.msg:sub( r.nbyte + 1, r.nbyte + 2 ) == '\r\n' then
+    elseif strbyte( r.msg, r.nbyte + 1 ) == CR and
+           strbyte( r.msg, r.nbyte + 2 ) == LF then
         local nbyte = r.nbyte;
         local msg = r.msg;
 
         -- extract a bulk strings
-        r.msg = msg:sub( nbyte + 3 );
+        r.msg = strsub( msg, nbyte + 3 );
         r.nbyte = nil;
 
-        return OK, msg:sub( 1, nbyte );
+        return OK, strsub( msg, 1, nbyte );
     end
 
     -- found illegal byte sequence
@@ -265,7 +271,7 @@ function RESP:decode( msg )
             return EAGAIN;
         end
 
-        handler = HANDLERS_LUT[self.msg:sub( 1, 1 )];
+        handler = HANDLERS_LUT[strsub( self.msg, 1, 1 )];
         if not handler then
             self.msg = '';
             self.prev = nil;
@@ -273,7 +279,7 @@ function RESP:decode( msg )
         end
 
         self.handler = handler;
-        self.msg = self.msg:sub( 2 );
+        self.msg = strsub( self.msg, 2 );
     end
 
     rc, val, extra = handler( self );
