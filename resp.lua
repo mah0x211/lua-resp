@@ -346,9 +346,15 @@ local function encode2array( narg, argv )
         local t = type( v );
 
         if t == 'string' then
-            arr[idx] = '$' .. #v;
-            arr[idx + 1] = v;
-            idx = idx + 2;
+            -- simple strings
+            if strfind( v, '^[+-]' ) then
+                arr[idx] = v;
+                idx = idx + 1;
+            else
+                arr[idx] = '$' .. #v;
+                arr[idx + 1] = v;
+                idx = idx + 2;
+            end
         elseif t == 'number' then
             if isint( v ) then
                 arr[idx] = ':' .. tostring( v );
