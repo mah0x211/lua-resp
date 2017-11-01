@@ -28,14 +28,27 @@
 
 --- assign to local
 local select = select;
+local type = type;
+local floor = math.floor;
 local setmetatable = setmetatable;
 local tostring = tostring;
 local tonumber = tonumber;
 local concat = table.concat;
+--- constants
+local INF_P = math.huge;
+local INF_N = -INF_P;
 --- status constants
 local OK = 0;
 local EAGAIN = 35;
 local EILSEQ = 92;
+
+
+--- isint
+-- @param v
+-- @return ok
+local function isint( v )
+    return v < INF_P and v > INF_N and floor( v ) == v;
+end
 
 
 --- getpos
@@ -331,10 +344,15 @@ local function encode2array( narg, argv )
             arr[idx + 1] = v;
             idx = idx + 2;
         elseif t == 'number' then
-            v = tostring( v );
-            arr[idx] = '$' .. #v;
-            arr[idx + 1] = v;
-            idx = idx + 2;
+            if isint( v ) then
+                arr[idx] = ':' .. tostring( v );
+                idx = idx + 1;
+            else
+                v = tostring( v );
+                arr[idx] = '$' .. #v;
+                arr[idx + 1] = v;
+                idx = idx + 2;
+            end
         elseif t == 'boolean' then
             v = v and '1' or '0';
             arr[idx] = '$1';
