@@ -276,10 +276,12 @@ function RESP:decode( msg )
             self.msg = '';
             self.prev = nil;
             return EILSEQ;
+        -- remove prefix if not simple-strings or error-strings
+        elseif handler ~= simplestrings and handler ~= errors then
+            self.msg = strsub( self.msg, 2 );
         end
 
         self.handler = handler;
-        self.msg = strsub( self.msg, 2 );
     end
 
     rc, val, extra = handler( self );
