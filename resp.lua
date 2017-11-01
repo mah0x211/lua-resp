@@ -331,11 +331,45 @@ function RESP:decode( msg )
 end
 
 
+local encode2array;
+
+--- encode2value
+-- @param val
+-- @return msg
+local function encode2value( val )
+    local t = type( val );
+
+    if t == 'string' then
+        -- simple strings
+        if strfind( val, '^[+-]' ) then
+            return val;
+        end
+
+        return '$' .. #val .. '\r\n' .. val;
+    elseif t == 'number' then
+        if isint( val ) then
+            return ':' .. tostring( val );
+        end
+
+        val = tostring( val );
+        return '$' .. #val .. '\r\n' .. val;
+    elseif t == 'boolean' then
+        return '$1\r\n' .. ( val and '1' or '0' );
+    elseif t == 'table' then
+        return encode2array( #val, val );
+    elseif val == nil then
+        return '$-1';
+    else
+        error( 'invalid argument ' .. t );
+    end
+end
+
+
 --- encode2array
 -- @param narg
 -- @param argv
 -- @return msg
-local function encode2array( narg, argv )
+encode2array = function( narg, argv )
     local arr = {
         -- array length
         '*' .. narg
@@ -344,43 +378,8 @@ local function encode2array( narg, argv )
 
     -- encode command
     for i = 1, narg do
-        local v = argv[i];
-        local t = type( v );
-
-        if t == 'string' then
-            -- simple strings
-            if strfind( v, '^[+-]' ) then
-                arr[idx] = v;
-                idx = idx + 1;
-            else
-                arr[idx] = '$' .. #v;
-                arr[idx + 1] = v;
-                idx = idx + 2;
-            end
-        elseif t == 'number' then
-            if isint( v ) then
-                arr[idx] = ':' .. tostring( v );
-                idx = idx + 1;
-            else
-                v = tostring( v );
-                arr[idx] = '$' .. #v;
-                arr[idx + 1] = v;
-                idx = idx + 2;
-            end
-        elseif t == 'boolean' then
-            v = v and '1' or '0';
-            arr[idx] = '$1';
-            arr[idx + 1] = v;
-            idx = idx + 2;
-        elseif t == 'table' then
-            arr[idx] = encode2array( #v, v );
-            idx = idx + 1;
-        elseif v == nil then
-            arr[idx] = '$-1';
-            idx = idx + 1;
-        else
-            error( 'invalid argument#' .. i .. ' ' .. t );
-        end
+        arr[idx] = encode2value( argv[i] );
+        idx = idx + 1;
     end
 
     return concat( arr, '\r\n' );
@@ -391,7 +390,13 @@ end
 -- @param ...
 -- @return msg
 local function encode( ... )
-    return encode2array( select( '#', ... ), { ... } ) .. '\r\n';
+    local narg = select( '#', ... );
+
+    if narg > 1 then
+        return encode2array( narg, { ... } ) .. '\r\n';
+    end
+
+    return encode2value( ... ) .. '\r\n';
 end
 
 
