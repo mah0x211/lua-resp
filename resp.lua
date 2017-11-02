@@ -400,6 +400,14 @@ local function encodeReply( ... )
 end
 
 
+--- encodeCommand
+-- @param ...
+-- @return msg
+local function encodeCommand( ... )
+    return encode2array( select( '#', ... ), { ... } ) .. '\r\n';
+end
+
+
 --- new
 -- @return r
 local function new()
@@ -417,6 +425,7 @@ end
 return {
     new = new,
     encodeReply = encodeReply,
+    encodeCommand = encodeCommand,
     OK = OK,
     EAGAIN = EAGAIN,
     EILSEQ = EILSEQ
