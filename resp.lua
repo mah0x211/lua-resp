@@ -386,10 +386,10 @@ encode2array = function( narg, argv )
 end
 
 
---- encode
+--- encodeReply
 -- @param ...
 -- @return msg
-local function encode( ... )
+local function encodeReply( ... )
     local narg = select( '#', ... );
 
     if narg > 1 then
@@ -416,7 +416,7 @@ end
 
 return {
     new = new,
-    encode = encode,
+    encodeReply = encodeReply,
     OK = OK,
     EAGAIN = EAGAIN,
     EILSEQ = EILSEQ
