@@ -400,14 +400,6 @@ local function encode( ... )
 end
 
 
---- encode
--- @param ...
--- @return msg
-function RESP:encode( ... )
-    return encode( ... );
-end
-
-
 --- new
 -- @return r
 local function new()
