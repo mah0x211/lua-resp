@@ -10,38 +10,27 @@ RESP (REdis Serialization Protocol) parser module.
 
 
 ```lua
-local RESP = require('resp')
+local resp = require('resp')
 ```
 
 
 ## Status Constants
 
-- `RESP.OK`: Serialized message has been decoded.
-- `RESP.EAGAIN`: Please add more serialized message chunk and try again.
-- `RESP.EILSEQ`: Found illegal byte sequence.
+- `resp.EAGAIN`: Not enough data available.
+- `resp.EILSEQ`: Found illegal byte sequence.
 
 
-## Create a RESP Object.
-
-### r = RESP.new()
-
-returns a new `RESP` object.
-
-**Returns**
-
-- `r:RESP`: RESP object.
+## Functions
 
 
-## RESP Methods
-
-
-### msg = r:encode( ... )
+### msg, err = resp.encode( ... )
 
 encode messages.
 
 **Parameters**
 
 - `...`: messages of the following data types;
+    - `nil`
     - `string`
     - `number`
     - `boolean`
@@ -50,9 +39,10 @@ encode messages.
 **Returns**
 
 - `msg:string`: serialized message.
+- `err:string`: error message.
 
 
-### status, msg, extra = r:decode( [str] )
+### consumed, msg = resp.decode( str )
 
 decode serialized message strings.
 
@@ -62,9 +52,8 @@ decode serialized message strings.
 
 **Returns**
 
-- `status:number`: [Status Constants](#status-constants).
+- `consumed:number`: greater than 0 on sucess, or [Status Constants](#status-constants).
 - `msg:string, number or array`: decoded message.
-- `extra:string`: extra strings if exists.
 
 
 ---
@@ -73,16 +62,13 @@ decode serialized message strings.
 ## Example
 
 ```lua
-local RESP = require("resp")
-local r = RESP.new()
-local status, msg
-
-msg = r:encode( 'HMSET', 'myhash', 'hello', '"world"' )
+local resp = require("resp")
+local data = resp.encode( 'HMSET', 'myhash', 'hello', '"world"' )
 -- encoded to following string;
 --  *4\r\n$5\r\nHMSET\r\n$6\r\nmyhash\r\n$5\r\nhello\r\n$7\r\n"world"\r\n
 
-status, msg = r:decode( msg )
--- status equal to RESP.OK
+local consumed, msg = resp.decode( data )
+-- consumed equal to 51
 -- decoded to following table;
 --  { [1] = "HMSET",
 --    [2] = "myhash",
