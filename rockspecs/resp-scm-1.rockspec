@@ -5,7 +5,7 @@ source = {
 }
 description = {
     summary = "RESP (REdis Serialization Protocol) parser",
-    homepage = "https://github.com/mah0x211/lua-protocol-redis",
+    homepage = "https://github.com/mah0x211/lua-resp",
     license = "MIT/X11",
     maintainer = "Masatoshi Teruya"
 }
