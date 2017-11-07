@@ -518,9 +518,5 @@ LUALIB_API int luaopen_resp( lua_State *L )
     lauxh_pushint2tbl( L, "EAGAIN", RESP_EAGAIN );
     lauxh_pushint2tbl( L, "EILSEQ", RESP_EILSEQ );
 
-    // disable stdio buffering
-    setvbuf( stdout, NULL, _IONBF, 0 );
-    setvbuf( stderr, NULL, _IONBF, 0 );
-
     return 1;
 }
