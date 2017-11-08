@@ -42,13 +42,14 @@ encode messages.
 - `err:string`: error message.
 
 
-### consumed, msg = resp.decode( str )
+### consumed, msg = resp.decode( str [, head] )
 
 decode serialized message strings.
 
 **Parameters**
 
 - `str`: serialized message string.
+- `head`: decode start position. (default `0`)
 
 **Returns**
 
@@ -62,12 +63,15 @@ decode serialized message strings.
 ## Example
 
 ```lua
+local inspect = require'util'.inspect
 local resp = require("resp")
-local data = resp.encode( 'HMSET', 'myhash', 'hello', '"world"' )
+
+local msg = resp.encode( 'HMSET', 'myhash', 'hello', '"world"' )
 -- encoded to following string;
 --  *4\r\n$5\r\nHMSET\r\n$6\r\nmyhash\r\n$5\r\nhello\r\n$7\r\n"world"\r\n
 
-local consumed, msg = resp.decode( data )
+
+local consumed, data = resp.decode( msg )
 -- consumed equal to 51
 -- decoded to following table;
 --  { [1] = "HMSET",
@@ -75,5 +79,24 @@ local consumed, msg = resp.decode( data )
 --    [3] = "hello",
 --    [4] = "\"world\"",
 --    len = 4 }
+
+
+-- decode multiple-message
+local mmsg = table.concat({msg, msg, msg})
+
+consumed, data = resp.decode( mmsg )
+while consumed > 0 do
+    mmsg = string.sub( mmsg, consumed + 1 )
+    consumed, data = resp.decode( mmsg )
+end
+
+
+-- use with head optional argument
+mmsg = table.concat({msg, msg, msg})
+
+consumed, data = resp.decode( mmsg )
+while consumed > 0 do
+    consumed, data = resp.decode( mmsg, consumed )
+end
 ```
 
