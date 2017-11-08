@@ -231,7 +231,7 @@ static int decode_lua( lua_State *L )
 {
     size_t len = 0;
     const char *msg = lauxh_checklstring( L, 1, &len );
-    ssize_t head = 0;
+    ssize_t head = lauxh_optuint64( L, 2, 0 );
     arraylist_t *arr = NULL;
     int64_t narr = 0;
 
