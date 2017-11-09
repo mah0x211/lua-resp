@@ -462,6 +462,36 @@ static int encode2array( lua_State *L, int idx, lua_State *stack )
 }
 
 
+static int encode2array_lua( lua_State *L )
+{
+    int narg = lua_gettop( L );
+
+    if( narg )
+    {
+        lua_State *stack = lua_newthread( L );
+        int i = 1;
+
+        // array length
+        lua_pushfstring( stack, "*%d\r\n", narg );
+        for(; i <= narg; i++ )
+        {
+            if( encode2value( L, i, stack ) != 0 ){
+                return 2;
+            }
+        }
+
+        lua_concat( stack, lua_gettop( stack ) );
+        lua_settop( L, 0 );
+        lua_xmove( stack, L, 1 );
+    }
+    else {
+        lua_pushlstring( L, "", 0 );
+    }
+
+    return 1;
+}
+
+
 static int encode_lua( lua_State *L )
 {
     int narg = lua_gettop( L );
@@ -503,6 +533,7 @@ LUALIB_API int luaopen_resp( lua_State *L )
 {
     struct luaL_Reg method[] = {
         { "encode", encode_lua },
+        { "encode2array", encode2array_lua },
         { "decode", decode_lua },
         { NULL, NULL }
     };
