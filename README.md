@@ -42,6 +42,16 @@ encode messages.
 - `err:string`: error message.
 
 
+### msg, err = resp.encode2array( ... )
+
+encode messages as array.  
+usually, this api use to encode a command message.
+
+**Parameters and Returns**
+
+same as [resp.encode API](#msg-err--respencode--)
+
+
 ### consumed, msg = resp.decode( str [, head] )
 
 decode serialized message strings.
