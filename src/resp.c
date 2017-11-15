@@ -234,6 +234,7 @@ static int decode_lua( lua_State *L )
     ssize_t head = lauxh_optuint64( L, 2, 0 );
     arraylist_t *arr = NULL;
     int64_t narr = 0;
+    char type = msg[head];
 
     lua_settop( L, 1 );
     lua_pushnil( L );
@@ -309,7 +310,10 @@ PARSE_ELEMENT:
 
     lua_pushinteger( L, head );
     lua_replace( L, 2 );
-    return 2;
+    // push message type
+    lua_pushinteger( L, type );
+
+    return 3;
 }
 
 
@@ -548,6 +552,17 @@ LUALIB_API int luaopen_resp( lua_State *L )
     // constants
     lauxh_pushint2tbl( L, "EAGAIN", RESP_EAGAIN );
     lauxh_pushint2tbl( L, "EILSEQ", RESP_EILSEQ );
+    // decoded msg type
+    // simplestrings
+    lauxh_pushint2tbl( L, "STR", '+' );
+    // errors
+    lauxh_pushint2tbl( L, "ERR", '-' );
+    // integers
+    lauxh_pushint2tbl( L, "INT", ':' );
+    // bulkstrings
+    lauxh_pushint2tbl( L, "BLK", '$' );
+    // arrays
+    lauxh_pushint2tbl( L, "ARR", '*' );
 
     return 1;
 }
