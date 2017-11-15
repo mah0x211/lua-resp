@@ -20,6 +20,15 @@ local resp = require('resp')
 - `resp.EILSEQ`: Found illegal byte sequence.
 
 
+## Message Type Constants
+
+- `resp.ARR`: arrays.
+- `resp.BLK`: bulkstrings.
+- `resp.ERR`: errors.
+- `resp.INT`: integers.
+- `resp.STR`: simplestrings.
+
+
 ## Functions
 
 
@@ -52,7 +61,7 @@ usually, this api use to encode a command message.
 same as [resp.encode API](#msg-err--respencode--)
 
 
-### consumed, msg = resp.decode( str [, head] )
+### consumed, msg, typ = resp.decode( str [, head] )
 
 decode serialized message strings.
 
@@ -65,6 +74,7 @@ decode serialized message strings.
 
 - `consumed:number`: greater than 0 on sucess, or [Status Constants](#status-constants).
 - `msg:string, number or array`: decoded message.
+- `typ:number`: [Message Type Constants](#message-type-constants).
 
 
 ---
@@ -81,8 +91,9 @@ local msg = resp.encode( 'HMSET', 'myhash', 'hello', '"world"' )
 --  *4\r\n$5\r\nHMSET\r\n$6\r\nmyhash\r\n$5\r\nhello\r\n$7\r\n"world"\r\n
 
 
-local consumed, data = resp.decode( msg )
+local consumed, data, typ = resp.decode( msg )
 -- consumed equal to 51
+-- typ equal to resp.ARR
 -- decoded to following table;
 --  { [1] = "HMSET",
 --    [2] = "myhash",
