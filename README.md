@@ -6,6 +6,12 @@ RESP (REdis Serialization Protocol) parser module.
 
 ---
 
+## Installation
+
+```
+luarocks install resp
+```
+
 ## resp module
 
 

@@ -1,8 +1,9 @@
 rockspec_format = "3.0"
 package = "resp"
-version = "scm-1"
+version = "0.5.3-2"
 source = {
-    url = "git+https://github.com/mah0x211/lua-resp.git"
+    url = "git+https://github.com/mah0x211/lua-resp.git",
+    tag = "v0.5.3"
 }
 description = {
     summary = "RESP (REdis Serialization Protocol) parser",
